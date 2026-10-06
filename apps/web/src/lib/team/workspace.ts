@@ -21,10 +21,11 @@ export function accountWhere(ws: Workspace): Prisma.InstagramAccountWhereInput {
   if (ws.assignedAccountIds) {
     return {
       userId: ws.ownerUserId,
+      disconnectedAt: null,
       id: { in: ws.assignedAccountIds },
     };
   }
-  return { userId: ws.ownerUserId };
+  return { userId: ws.ownerUserId, disconnectedAt: null };
 }
 
 export function automationWhere(ws: Workspace): Prisma.AutomationWhereInput {

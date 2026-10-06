@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Script from "next/script";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
@@ -41,6 +42,8 @@ export function openRazorpayCheckout(input: {
   name?: string;
   email?: string;
   onSettled: () => void;
+  /** Called after verify-payment finishes (paid or failed), before onSettled. */
+  onVerified?: () => void;
 }) {
   if (!window.Razorpay) {
     toast.error("Razorpay checkout is still loading. Try again.");
@@ -57,7 +60,9 @@ export function openRazorpayCheckout(input: {
     order_id: order.order_id,
     prefill: { name: input.name, email: input.email },
     handler: (response: RazorpaySuccess) => {
-      void verifyCheckout(response).finally(input.onSettled);
+      void verifyCheckout(response)
+        .then(() => input.onVerified?.())
+        .finally(input.onSettled);
     },
     modal: {
       ondismiss: () => {
@@ -81,9 +86,13 @@ export function openRazorpayCheckout(input: {
         razorpay_payment_id: err.error?.metadata?.payment_id,
         error: err.error?.description ?? "Payment failed at checkout.",
       }),
-    });
-    input.onSettled();
-    toast.error("Payment failed. A receipt was emailed if mail is set up.");
+    })
+      .catch(() => undefined)
+      .finally(() => {
+        input.onVerified?.();
+        input.onSettled();
+        toast.error("Payment failed. A receipt was emailed if mail is set up.");
+      });
   });
   checkout.open();
 }
@@ -129,6 +138,7 @@ export function PayButton({
   email?: string;
   disabled?: boolean;
 }) {
+  const router = useRouter();
   const [busy, setBusy] = useState(false);
 
   async function pay() {
@@ -153,6 +163,7 @@ export function PayButton({
         label,
         name,
         email,
+        onVerified: () => router.refresh(),
         onSettled: () => setBusy(false),
       });
     } catch {

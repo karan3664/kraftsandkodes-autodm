@@ -1,0 +1,16 @@
+KRAFTSANDKODES AutoDM — App Review screencast
+File: kraftsandkodes-app-review-screencast.mp4
+
+Use for:
+- instagram_business_basic
+- instagram_business_manage_comments
+- instagram_business_manage_messages
+
+Suggested description (paste in Meta):
+When a creator connects a professional Instagram account and sets a keyword automation on a specific Reel/post, AutoDM receives the comment webhook and sends exactly one private reply (Instagram message) to that commenter through Meta’s official APIs. We do not send unsolicited or bulk DMs.
+
+Live product:
+https://kraftsandkodes.com
+https://app.kraftsandkodes.com
+
+Note: This slideshow demonstrates the product flow for App Review. After Instagram Login + webhooks work for a tester account, replace/supplement with a live phone recording of Connect → comment TRAIN → inbox DM → Activity sent.

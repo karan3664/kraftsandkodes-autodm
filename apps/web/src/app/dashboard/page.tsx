@@ -18,6 +18,7 @@ import {
   canConnectAccount,
   getEffectivePlan,
   monthWindow,
+  planDisplayName,
   replyLimit,
   usageAlert,
 } from "@/lib/plans";
@@ -328,7 +329,8 @@ export default async function DashboardPage() {
               Monthly usage
             </h2>
             <p className="text-xs text-zinc-500">
-              Automated replies across all of your Instagram accounts
+              {planDisplayName(plan)} plan · Automated replies across all of
+              your Instagram accounts
             </p>
           </div>
           <p className="text-sm text-zinc-300">

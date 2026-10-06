@@ -275,7 +275,11 @@ export async function assignAccounts(
   const unique = [...new Set(accountIds)];
   if (unique.length > 0) {
     const owned = await prisma.instagramAccount.findMany({
-      where: { userId: ws.ownerUserId, id: { in: unique } },
+      where: {
+        userId: ws.ownerUserId,
+        disconnectedAt: null,
+        id: { in: unique },
+      },
       select: { id: true },
     });
     if (owned.length !== unique.length) {

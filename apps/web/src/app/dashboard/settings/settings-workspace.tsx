@@ -28,6 +28,14 @@ import {
   canRetryCheckout,
   paymentBadgeLabel,
 } from "@/lib/payment-actions";
+import {
+  ACCOUNT_LIMITS,
+  REPLY_LIMITS,
+  TEAM_MEMBER_LIMITS,
+  normalizePlan,
+  planDisplayName,
+  type PlanSlug,
+} from "@/lib/plans";
 import { DisconnectInstagramButton } from "../instagram/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -101,7 +109,13 @@ export function SettingsWorkspace({
   canTeam?: boolean;
   initialTab?: Tab;
   highlightPlan?: "creator" | "pro" | "agency" | null;
-  user: { name: string; email: string; createdAt: string; plan: string };
+  user: {
+    name: string;
+    email: string;
+    createdAt: string;
+    plan: string;
+    planExpiresAt?: string | null;
+  };
   accounts: Array<{
     id: string;
     username: string;
@@ -209,10 +223,8 @@ export function SettingsWorkspace({
         label: "Retry payment",
         name: user.name,
         email: user.email,
-        onSettled: () => {
-          setReceiptBusy(null);
-          router.refresh();
-        },
+        onVerified: () => router.refresh(),
+        onSettled: () => setReceiptBusy(null),
       });
       return;
     } catch {
@@ -326,10 +338,25 @@ export function SettingsWorkspace({
                       : "Member"}
                 </p>
               </div>
+              <div>
+                <p className="text-xs text-zinc-500">Plan</p>
+                <p className="text-sm text-white">
+                  {planDisplayName(user.plan)}
+                  {user.planExpiresAt
+                    ? ` · until ${new Date(
+                        user.planExpiresAt,
+                      ).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}`
+                    : ""}
+                </p>
+              </div>
             </div>
           </div>
           <p className="mt-4 text-xs text-zinc-500">
-            {stats.sent} automated replies recorded. Current plan: {user.plan}.
+            {stats.sent} automated replies recorded.
           </p>
         </section>
       ) : null}
@@ -367,6 +394,39 @@ export function SettingsWorkspace({
             Razorpay checkout in ₹. Success and failure are saved, and a receipt
             is emailed to {user.email}.
           </p>
+          <div className="mt-4 rounded-2xl border border-violet-400/40 bg-violet-600/10 p-4">
+            <p className="text-xs uppercase tracking-wide text-violet-300">
+              Your current plan
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-white">
+              {planDisplayName(user.plan)}
+            </p>
+            <p className="mt-2 text-sm text-zinc-300">
+              {(() => {
+                const slug = normalizePlan(user.plan) as PlanSlug;
+                const replies = REPLY_LIMITS[slug].toLocaleString("en-IN");
+                const accounts = ACCOUNT_LIMITS[slug];
+                const seats = TEAM_MEMBER_LIMITS[slug];
+                const bits = [
+                  `${replies} replies / month`,
+                  `${accounts} Instagram account${accounts === 1 ? "" : "s"}`,
+                ];
+                if (seats > 0) bits.push(`${seats} team seats`);
+                return bits.join(" · ");
+              })()}
+            </p>
+            <p className="mt-1 text-xs text-zinc-500">
+              {user.planExpiresAt
+                ? `Active until ${new Date(
+                    user.planExpiresAt,
+                  ).toLocaleDateString("en-IN", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric",
+                  })}`
+                : "Free plan — upgrade below for higher limits."}
+            </p>
+          </div>
           {team?.leftoverTeam ? (
             <p className="mt-2 text-sm text-amber-200">
               Your new plan does not include team members. Team data is kept.
@@ -388,14 +448,19 @@ export function SettingsWorkspace({
               <div
                 className={cn(
                   "rounded-2xl border bg-black/30 p-4",
-                  highlightPlan === "creator"
+                  normalizePlan(user.plan) === "creator" ||
+                    highlightPlan === "creator"
                     ? "border-violet-400 shadow-[0_0_28px_rgba(124,58,237,0.35)]"
                     : "border-white/10",
                 )}
               >
                 <p className="text-sm font-semibold text-white">
                   Creator
-                  {highlightPlan === "creator" ? (
+                  {normalizePlan(user.plan) === "creator" ? (
+                    <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-emerald-300">
+                      Current
+                    </span>
+                  ) : highlightPlan === "creator" ? (
                     <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-violet-300">
                       Selected
                     </span>
@@ -425,14 +490,18 @@ export function SettingsWorkspace({
               <div
                 className={cn(
                   "rounded-2xl border bg-black/30 p-4",
-                  highlightPlan === "pro"
+                  normalizePlan(user.plan) === "pro" || highlightPlan === "pro"
                     ? "border-violet-400 shadow-[0_0_28px_rgba(124,58,237,0.35)]"
                     : "border-violet-500/30",
                 )}
               >
                 <p className="text-sm font-semibold text-white">
                   Pro
-                  {highlightPlan === "pro" ? (
+                  {normalizePlan(user.plan) === "pro" ? (
+                    <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-emerald-300">
+                      Current
+                    </span>
+                  ) : highlightPlan === "pro" ? (
                     <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-violet-300">
                       Selected
                     </span>
@@ -462,14 +531,19 @@ export function SettingsWorkspace({
               <div
                 className={cn(
                   "rounded-2xl border bg-black/30 p-4",
-                  highlightPlan === "agency"
+                  normalizePlan(user.plan) === "agency" ||
+                    highlightPlan === "agency"
                     ? "border-violet-400 shadow-[0_0_28px_rgba(124,58,237,0.35)]"
                     : "border-white/10",
                 )}
               >
                 <p className="text-sm font-semibold text-white">
                   Agency
-                  {highlightPlan === "agency" ? (
+                  {normalizePlan(user.plan) === "agency" ? (
+                    <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-emerald-300">
+                      Current
+                    </span>
+                  ) : highlightPlan === "agency" ? (
                     <span className="ml-2 text-[10px] font-medium uppercase tracking-wide text-violet-300">
                       Selected
                     </span>

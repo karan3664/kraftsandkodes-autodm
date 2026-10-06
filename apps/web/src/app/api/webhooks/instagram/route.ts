@@ -36,17 +36,33 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const rawBody = await request.text();
+  const rawBytes = Buffer.from(await request.arrayBuffer());
+  const rawBody = rawBytes.toString("utf8");
   const env = getEnv();
 
   if (!isMockMode()) {
-    const signature = request.headers.get("x-hub-signature-256");
+    const signature =
+      request.headers.get("x-hub-signature-256") ??
+      request.headers.get("X-Hub-Signature-256");
     if (
       !env.META_APP_SECRET ||
       !signature ||
-      !verifySignature(rawBody, signature, env.META_APP_SECRET)
+      !verifySignature(rawBytes, signature, env.META_APP_SECRET)
     ) {
-      logger.warn("webhook_invalid_signature");
+      const expected = `sha256=${createHmac(
+        "sha256",
+        env.META_APP_SECRET.trim(),
+      )
+        .update(rawBytes)
+        .digest("hex")}`;
+      logger.warn("webhook_invalid_signature", {
+        hasSecret: Boolean(env.META_APP_SECRET),
+        hasHeader: Boolean(signature),
+        bodyBytes: rawBytes.byteLength,
+        appIdPrefix: env.META_APP_ID.slice(0, 6),
+        gotPrefix: (signature ?? "").slice(0, 18),
+        wantPrefix: expected.slice(0, 18),
+      });
       return NextResponse.json(
         {
           success: false,
@@ -103,12 +119,14 @@ export async function POST(request: NextRequest) {
 }
 
 function verifySignature(
-  rawBody: string,
+  rawBody: Buffer,
   header: string,
   appSecret: string,
 ): boolean {
-  const expected = `sha256=${createHmac("sha256", appSecret).update(rawBody).digest("hex")}`;
-  const left = Buffer.from(header);
+  const expected = `sha256=${createHmac("sha256", appSecret.trim())
+    .update(rawBody)
+    .digest("hex")}`;
+  const left = Buffer.from(header.trim());
   const right = Buffer.from(expected);
   if (left.length !== right.length) {
     return false;

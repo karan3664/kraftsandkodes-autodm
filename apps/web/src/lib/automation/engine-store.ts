@@ -156,8 +156,8 @@ export const prismaEngineStore: AutomationEngineStore = {
   },
   async findAccount(instagramUserId) {
     return prisma.instagramAccount
-      .findUnique({
-        where: { instagramUserId },
+      .findFirst({
+        where: { instagramUserId, disconnectedAt: null },
         select: {
           id: true,
           userId: true,

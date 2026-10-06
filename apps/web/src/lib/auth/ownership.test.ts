@@ -30,7 +30,7 @@ describe("ownership IDOR guards", () => {
     const { getOwnedInstagramAccount } = await import("./ownership");
     await getOwnedInstagramAccount("user_a", "acc_b");
     expect(findFirst).toHaveBeenCalledWith({
-      where: { id: "acc_b", userId: "user_a" },
+      where: { id: "acc_b", userId: "user_a", disconnectedAt: null },
     });
   });
 
@@ -44,7 +44,7 @@ describe("ownership IDOR guards", () => {
     expect(findFirst).not.toHaveBeenCalled();
     await getAccessibleInstagramAccount(ws, "acc_ok");
     expect(findFirst).toHaveBeenCalledWith({
-      where: { id: "acc_ok", userId: "owner" },
+      where: { id: "acc_ok", userId: "owner", disconnectedAt: null },
     });
   });
 

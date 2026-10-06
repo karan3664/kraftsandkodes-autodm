@@ -24,12 +24,36 @@ type MediaItem = {
   commentsEnabled?: boolean | null;
 };
 
-const STEPS = [
+const CREATE_STEPS = [
   "Select Content",
   "Keywords",
   "Reply Message",
   "Review & Create",
 ] as const;
+
+const EDIT_STEPS = [
+  "Select Content",
+  "Keywords",
+  "Reply Message",
+  "Review & Save",
+] as const;
+
+export type WizardInitial = {
+  id: string;
+  keywords: string[];
+  matchType: "contains" | "exact" | "all_comments";
+  actionType: "private_reply" | "comment_reply";
+  privateReplyMessage: string;
+  requireFollow: boolean;
+  followPromptMessage: string;
+  notFollowingMessage: string;
+  commentReplyMessage: string;
+  ignoreOwnComments: boolean;
+  enabled: boolean;
+  instagramAccountId: string;
+  mediaId: string;
+  media: MediaItem;
+};
 
 const SUGGESTED_KEYWORDS = ["PRICE", "LINK", "SHOP", "INFO", "TRAIN"];
 
@@ -69,45 +93,69 @@ function mediaStats(item: MediaItem) {
 export function CreateAutomationWizard({
   accounts,
   selectedAccountId,
+  initial,
 }: {
   accounts: Array<{ id: string; username: string }>;
   selectedAccountId?: string;
+  initial?: WizardInitial;
 }) {
   const router = useRouter();
-  const [step, setStep] = useState(0);
+  const editing = Boolean(initial);
+  const steps = editing ? EDIT_STEPS : CREATE_STEPS;
+  const [step, setStep] = useState(initial ? 1 : 0);
   const [accountId, setAccountId] = useState(
-    selectedAccountId && accounts.some((item) => item.id === selectedAccountId)
-      ? selectedAccountId
-      : (accounts[0]?.id ?? ""),
+    initial?.instagramAccountId ??
+      (selectedAccountId &&
+      accounts.some((item) => item.id === selectedAccountId)
+        ? selectedAccountId
+        : (accounts[0]?.id ?? "")),
   );
-  const [media, setMedia] = useState<MediaItem[]>([]);
+  const [media, setMedia] = useState<MediaItem[]>(
+    initial?.media ? [initial.media] : [],
+  );
   const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [type, setType] = useState<"all" | "reel" | "post">("all");
   const [sort, setSort] = useState<"newest" | "oldest">("newest");
-  const [mediaId, setMediaId] = useState("");
-  const [keywords, setKeywords] = useState(["TRAIN", "TRAIN LINK", "LINK"]);
+  const [mediaId, setMediaId] = useState(initial?.mediaId ?? "");
+  const [keywords, setKeywords] = useState(
+    initial?.keywords?.length
+      ? initial.keywords
+      : initial?.matchType === "all_comments"
+        ? []
+        : ["TRAIN", "TRAIN LINK", "LINK"],
+  );
   const [draft, setDraft] = useState("");
   const [matchType, setMatchType] = useState<
     "contains" | "exact" | "all_comments"
-  >("contains");
-  const [message, setMessage] = useState<string>(DEFAULT_MESSAGES.link);
-  const [requireFollow, setRequireFollow] = useState(true);
-  const [commentOnly, setCommentOnly] = useState(false);
-  const [ignoreOwnComments, setIgnoreOwnComments] = useState(true);
+  >(initial?.matchType ?? "contains");
+  const [message, setMessage] = useState<string>(
+    initial?.privateReplyMessage || DEFAULT_MESSAGES.link,
+  );
+  const [requireFollow, setRequireFollow] = useState(
+    initial?.requireFollow ?? true,
+  );
+  const [commentOnly, setCommentOnly] = useState(
+    initial?.actionType === "comment_reply",
+  );
+  const [ignoreOwnComments, setIgnoreOwnComments] = useState(
+    initial?.ignoreOwnComments ?? true,
+  );
   const [followPrompt, setFollowPrompt] = useState<string>(
-    DEFAULT_MESSAGES.followPrompt,
+    initial?.followPromptMessage || DEFAULT_MESSAGES.followPrompt,
   );
   const [notFollowing, setNotFollowing] = useState<string>(
-    DEFAULT_MESSAGES.notFollowing,
+    initial?.notFollowingMessage || DEFAULT_MESSAGES.notFollowing,
   );
   const [commentReply, setCommentReply] = useState<string>(
-    DEFAULT_MESSAGES.commentReply,
+    initial?.commentReplyMessage || DEFAULT_MESSAGES.commentReply,
   );
-  const [enabled, setEnabled] = useState(true);
+  const [enabled, setEnabled] = useState(initial?.enabled ?? true);
   const [saving, setSaving] = useState(false);
 
-  const selected = media.find((item) => item.id === mediaId) ?? null;
+  const selected =
+    media.find((item) => item.id === mediaId) ??
+    (initial?.mediaId === mediaId ? (initial.media ?? null) : null);
 
   useEffect(() => {
     let cancelled = false;
@@ -126,16 +174,24 @@ export function CreateAutomationWizard({
       setLoading(false);
       if (!body.success || !body.data) {
         toast.error(body.error?.message ?? "Could not load posts.");
-        setMedia([]);
+        if (!initial?.media) setMedia([]);
         return;
       }
-      setMedia(body.data.media);
+      const loaded = body.data.media;
+      if (
+        initial?.media &&
+        !loaded.some((item) => item.id === initial.media.id)
+      ) {
+        setMedia([initial.media, ...loaded]);
+      } else {
+        setMedia(loaded);
+      }
     }
     void load();
     return () => {
       cancelled = true;
     };
-  }, [accountId]);
+  }, [accountId, initial?.media]);
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase();
@@ -205,57 +261,72 @@ export function CreateAutomationWizard({
     setStep((current) => current + 1);
   }
 
-  async function create() {
+  async function save() {
     setSaving(true);
     try {
-      const response = await fetch("/api/automations", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name:
-            matchType === "exact" || matchType === "contains"
-              ? (keywords[0] ?? "Automation")
-              : "Any comment",
-          keywords:
-            matchType === "exact" || matchType === "contains" ? keywords : [],
-          matchType:
-            matchType === "exact" || matchType === "contains"
-              ? matchType
-              : "all_comments",
-          caseSensitive: false,
-          actionType: commentOnly ? "comment_reply" : "private_reply",
-          privateReplyMessage: commentOnly ? "" : message,
-          requireFollow: commentOnly ? false : requireFollow,
-          followPromptMessage: followPrompt,
-          notFollowingMessage: notFollowing,
-          commentReplyMessage: commentReply,
-          ignoreOwnComments,
-          enabled,
-          instagramAccountId: accountId,
-          mediaId,
-        }),
-      });
+      const payload = {
+        name:
+          matchType === "exact" || matchType === "contains"
+            ? (keywords[0] ?? "Automation")
+            : "Any comment",
+        keywords:
+          matchType === "exact" || matchType === "contains" ? keywords : [],
+        matchType:
+          matchType === "exact" || matchType === "contains"
+            ? matchType
+            : "all_comments",
+        caseSensitive: false,
+        actionType: commentOnly ? "comment_reply" : "private_reply",
+        privateReplyMessage: commentOnly ? "" : message,
+        requireFollow: commentOnly ? false : requireFollow,
+        followPromptMessage: followPrompt,
+        notFollowingMessage: notFollowing,
+        commentReplyMessage: commentReply,
+        ignoreOwnComments,
+        enabled,
+        instagramAccountId: accountId,
+        mediaId,
+      };
+      const response = await fetch(
+        initial ? `/api/automations/${initial.id}` : "/api/automations",
+        {
+          method: initial ? "PATCH" : "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        },
+      );
       const text = await response.text();
       let body: { success?: boolean; error?: { message: string } } = {};
       try {
         body = text ? (JSON.parse(text) as typeof body) : {};
       } catch {
-        toast.error("Could not create automation. Try again.");
+        toast.error(
+          initial
+            ? "Could not update automation. Try again."
+            : "Could not create automation. Try again.",
+        );
         return;
       }
       if (!body.success) {
-        toast.error(body.error?.message ?? "Could not create automation", {
-          action:
-            body.error?.message === "Free plan includes 1 active automation."
-              ? {
-                  label: "Upgrade to Creator",
-                  onClick: () => router.push("/dashboard/settings?tab=billing"),
-                }
-              : undefined,
-        });
+        toast.error(
+          body.error?.message ??
+            (initial
+              ? "Could not update automation"
+              : "Could not create automation"),
+          {
+            action:
+              body.error?.message === "Free plan includes 1 active automation."
+                ? {
+                    label: "Upgrade to Creator",
+                    onClick: () =>
+                      router.push("/dashboard/settings?tab=billing"),
+                  }
+                : undefined,
+          },
+        );
         return;
       }
-      toast.success("Automation created");
+      toast.success(initial ? "Automation updated" : "Automation created");
       router.push("/dashboard/automations");
       router.refresh();
     } finally {
@@ -271,10 +342,12 @@ export function CreateAutomationWizard({
             <InstagramMark size={48} />
             <div>
               <h1 className="text-2xl font-semibold text-white">
-                Create Automation
+                {editing ? "Edit Automation" : "Create Automation"}
               </h1>
               <p className="text-sm text-zinc-400">
-                Set up keyword-based private replies for your Instagram content.
+                {editing
+                  ? "Update keywords and replies for this Reel or post."
+                  : "Set up keyword-based private replies for your Instagram content."}
               </p>
             </div>
           </div>
@@ -284,7 +357,7 @@ export function CreateAutomationWizard({
           />
         </div>
         <ol className="mt-6 grid gap-2 sm:grid-cols-4">
-          {STEPS.map((label, index) => (
+          {steps.map((label, index) => (
             <li key={label}>
               <button
                 type="button"
@@ -413,7 +486,8 @@ export function CreateAutomationWizard({
           onEnabled={setEnabled}
           onEdit={(index) => setStep(index)}
           onBack={() => setStep(2)}
-          onCreate={create}
+          onCreate={save}
+          editing={editing}
         />
       ) : null}
     </div>
@@ -1240,6 +1314,7 @@ function StepReview({
   onEdit,
   onBack,
   onCreate,
+  editing = false,
 }: {
   selected: MediaItem;
   keywords: string[];
@@ -1257,6 +1332,7 @@ function StepReview({
   onEdit: (step: number) => void;
   onBack: () => void;
   onCreate: () => void;
+  editing?: boolean;
 }) {
   return (
     <section className="space-y-5">
@@ -1265,7 +1341,9 @@ function StepReview({
           4. Review Your Automation
         </h2>
         <p className="text-sm text-zinc-400">
-          Please review the details below before creating the automation.
+          {editing
+            ? "Please review the details below before saving changes."
+            : "Please review the details below before creating the automation."}
         </p>
       </div>
       <div className="grid gap-4 xl:grid-cols-2">
@@ -1408,7 +1486,13 @@ function StepReview({
           ← Back
         </Button>
         <Button onClick={onCreate} disabled={saving}>
-          {saving ? "Creating…" : "Create Automation →"}
+          {saving
+            ? editing
+              ? "Saving…"
+              : "Creating…"
+            : editing
+              ? "Save Changes →"
+              : "Create Automation →"}
         </Button>
       </div>
       <p className="text-center text-xs text-zinc-600">

@@ -127,9 +127,21 @@ export function DisconnectInstagramButton({
       </Button>
       <Modal open={ask} onOpenChange={setAsk}>
         <ModalContent title="Disconnect Instagram?">
-          <p className="text-sm leading-relaxed text-zinc-400">
-            Automations on this account will stop until you connect it again.
-          </p>
+          <div className="space-y-3 text-sm leading-relaxed text-zinc-400">
+            <p>
+              All automations for this Instagram account will be{" "}
+              <span className="font-medium text-rose-300">
+                permanently deleted
+              </span>
+              . This cannot be undone.
+            </p>
+            <p>
+              Your plan slot stays used by this account. You can reconnect the{" "}
+              <span className="font-medium text-white">same</span> Instagram
+              account later, but you cannot replace it with a different one
+              without upgrading.
+            </p>
+          </div>
           <div className="mt-5 flex flex-wrap justify-end gap-2">
             <Button size="sm" variant="secondary" onClick={() => setAsk(false)}>
               Keep connected
@@ -140,7 +152,7 @@ export function DisconnectInstagramButton({
               disabled={pending}
               onClick={() => void disconnect()}
             >
-              {pending ? "Disconnecting…" : "Disconnect"}
+              {pending ? "Disconnecting…" : "Delete automations & disconnect"}
             </Button>
           </div>
         </ModalContent>

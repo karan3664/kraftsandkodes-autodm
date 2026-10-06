@@ -1,5 +1,5 @@
 import { prisma } from "@kdl/db";
-import { decryptSecret } from "@kdl/shared/crypto";
+import { decryptSecret, encryptSecret } from "@kdl/shared/crypto";
 import { requireUser } from "@/lib/auth/session";
 import { getAccessibleInstagramAccount } from "@/lib/auth/ownership";
 import { loadWorkspace } from "@/lib/team/workspace";
@@ -38,11 +38,12 @@ export async function POST(request: Request) {
     return jsonError("FORBIDDEN", "That Instagram account is not yours.", 403);
   }
 
+  const env = getEnv();
   const client = getInstagramClient();
   try {
     const accessToken = decryptSecret(
       account.accessTokenEncrypted,
-      getEnv().TOKEN_ENCRYPTION_KEY,
+      env.TOKEN_ENCRYPTION_KEY,
     );
     await client.revokeAccess(accessToken);
   } catch {
@@ -51,6 +52,31 @@ export async function POST(request: Request) {
     });
   }
 
-  await prisma.instagramAccount.delete({ where: { id: account.id } });
+  // Soft-disconnect: keep the row so the plan slot stays bound to this IG id.
+  await prisma.$transaction(async (tx) => {
+    await tx.automation.deleteMany({
+      where: { instagramAccountId: account.id },
+    });
+    await tx.teamMemberAccount.deleteMany({
+      where: { instagramAccountId: account.id },
+    });
+    await tx.instagramAccount.update({
+      where: { id: account.id },
+      data: {
+        disconnectedAt: new Date(),
+        accessTokenEncrypted: encryptSecret(
+          "revoked",
+          env.TOKEN_ENCRYPTION_KEY,
+        ),
+        tokenExpiresAt: null,
+        webhookStatus: "disconnected",
+        webhookError: null,
+      },
+    });
+  });
+
+  logger.info("instagram_disconnected", {
+    instagramAccountId: account.id,
+  });
   return jsonOk({ disconnected: true });
 }

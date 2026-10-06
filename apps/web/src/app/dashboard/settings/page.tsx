@@ -80,6 +80,13 @@ export default async function SettingsPage({
       : billingRequested && ws.canBilling
         ? "billing"
         : "general";
+  const plan = dbUser
+    ? await syncExpiredPlan({
+        id: ws.ownerUserId,
+        plan: dbUser.plan,
+        planExpiresAt: dbUser.planExpiresAt,
+      })
+    : getEffectivePlan({});
 
   return (
     <SettingsWorkspace
@@ -100,13 +107,11 @@ export default async function SettingsPage({
         name: user.name,
         email: user.email,
         createdAt: dbUser?.createdAt.toISOString() ?? new Date().toISOString(),
-        plan: dbUser
-          ? await syncExpiredPlan({
-              id: ws.ownerUserId,
-              plan: dbUser.plan,
-              planExpiresAt: dbUser.planExpiresAt,
-            })
-          : getEffectivePlan({}),
+        plan,
+        planExpiresAt:
+          plan !== "free" && dbUser?.planExpiresAt
+            ? dbUser.planExpiresAt.toISOString()
+            : null,
       }}
       webhookUrl={`${env.APP_URL.replace(/\/$/, "")}/api/webhooks/instagram`}
       verifyTokenConfigured={Boolean(env.META_WEBHOOK_VERIFY_TOKEN)}

@@ -1,0 +1,17 @@
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/01.png'
+duration 7
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/02.png'
+duration 6.5
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/03.png'
+duration 7
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/04.png'
+duration 9
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/05.png'
+duration 9
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/06.png'
+duration 8
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/07.png'
+duration 7.5
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/08.png'
+duration 6
+file '/Users/kbrahmaxatr/Projects/kraftsandkodes-autodm/content/reel/scenes/08.png'

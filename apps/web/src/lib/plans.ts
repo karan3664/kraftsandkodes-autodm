@@ -1,5 +1,5 @@
 export const INSTAGRAM_ACCOUNT_LIMIT_MESSAGE =
-  "You've reached your Instagram account limit.";
+  "You've used all Instagram account slots on your plan. Disconnecting does not free a slot — you can only reconnect the same accounts.";
 
 export const PLAN_SLUGS = ["free", "creator", "pro", "agency"] as const;
 export type PlanSlug = (typeof PLAN_SLUGS)[number];
@@ -73,6 +73,13 @@ export function normalizePlan(raw: string | null | undefined): PlanSlug {
     return value;
   }
   return "free";
+}
+
+export function planDisplayName(plan: string | null | undefined): string {
+  const slug = normalizePlan(plan);
+  return slug === "free"
+    ? "Free"
+    : slug.charAt(0).toUpperCase() + slug.slice(1);
 }
 
 /**

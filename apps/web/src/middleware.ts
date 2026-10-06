@@ -18,6 +18,11 @@ export function middleware(request: NextRequest) {
     process.env.SESSION_COOKIE_NAME ?? "autodm_session",
   );
 
+  // Meta/Razorpay POST bodies + signature headers must not be redirected.
+  if (pathname.startsWith("/api/webhooks/")) {
+    return NextResponse.next();
+  }
+
   if (!isLocalHost(host) && isMarketingHost(host)) {
     if (
       pathname.startsWith("/dashboard") ||
@@ -58,5 +63,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|brand|favicon.ico).*)"],
+  matcher: [
+    "/((?!_next/static|_next/image|brand|favicon.ico|api/webhooks/).*)",
+  ],
 };

@@ -135,6 +135,7 @@ export async function refreshDueInstagramTokens(now = new Date()) {
   const threshold = new Date(now.getTime() + TOKEN_REFRESH_THRESHOLD_MS);
   const accounts = await prisma.instagramAccount.findMany({
     where: {
+      disconnectedAt: null,
       tokenExpiresAt: {
         gt: now,
         lte: threshold,

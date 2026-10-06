@@ -12,7 +12,7 @@ export async function getOwnedInstagramAccount(
   accountId: string,
 ) {
   return prisma.instagramAccount.findFirst({
-    where: { id: accountId, userId },
+    where: { id: accountId, userId, disconnectedAt: null },
   });
 }
 
@@ -38,7 +38,7 @@ export async function getAccessibleInstagramAccount(
     return null;
   }
   return prisma.instagramAccount.findFirst({
-    where: { id: accountId, userId: ws.ownerUserId },
+    where: { id: accountId, userId: ws.ownerUserId, disconnectedAt: null },
   });
 }
 

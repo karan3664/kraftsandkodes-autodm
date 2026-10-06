@@ -76,6 +76,7 @@ export async function completeOAuth(
   const saved = await prisma.instagramAccount.upsert({
     where: { instagramUserId: profile.id },
     update: {
+      userId,
       username: profile.username,
       profilePictureUrl: profile.profilePictureUrl,
       accessTokenEncrypted: encryptSecret(
@@ -83,6 +84,8 @@ export async function completeOAuth(
         env.TOKEN_ENCRYPTION_KEY,
       ),
       tokenExpiresAt: tokens.expiresAt,
+      disconnectedAt: null,
+      connectedAt: new Date(),
       webhookStatus: subscription.success
         ? isMockMode()
           ? "mock"

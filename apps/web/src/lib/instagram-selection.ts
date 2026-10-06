@@ -22,7 +22,7 @@ export type InstagramAccountRow = {
 
 export async function listUserInstagramAccounts(userId: string) {
   return prisma.instagramAccount.findMany({
-    where: { userId },
+    where: { userId, disconnectedAt: null },
     orderBy: { connectedAt: "desc" },
   });
 }
@@ -76,6 +76,7 @@ export async function canConnectAnotherAccount(userId: string): Promise<{
   used: number;
   limit: number;
 }> {
+  // Count every slot ever used (including disconnected). Reconnect same IG id is free.
   const [used, user] = await Promise.all([
     prisma.instagramAccount.count({ where: { userId } }),
     prisma.user.findUnique({
