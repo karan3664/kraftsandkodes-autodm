@@ -1,0 +1,2 @@
+ALTER TABLE "User" ADD COLUMN "plan" TEXT NOT NULL DEFAULT 'starter';
+ALTER TABLE "User" ADD COLUMN "planExpiresAt" TIMESTAMP(3);

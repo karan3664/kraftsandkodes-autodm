@@ -1,0 +1,264 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum MatchType {
+  exact
+  contains
+  all_comments
+}
+
+enum ExecutionStatus {
+  pending
+  awaiting_follow
+  sent
+  skipped
+  failed
+}
+
+enum AutomationActionType {
+  private_reply
+  comment_reply
+}
+
+enum PaymentStatus {
+  pending
+  paid
+  failed
+  refunded
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  plan             String    @default("starter")
+  planExpiresAt    DateTime?
+  replyUsageMonth  DateTime?
+  replyUsageCount  Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  sessions           Session[]
+  instagramAccounts  InstagramAccount[]
+  automations        Automation[]
+  payments           Payment[]
+  ownedTeamMembers   TeamMember[]        @relation("TeamOwner")
+  teamMemberships    TeamMember[]        @relation("TeamMemberUser")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model InstagramAccount {
+  id                   String    @id @default(cuid())
+  userId               String
+  instagramUserId      String    @unique
+  username             String
+  profilePictureUrl    String?
+  accessTokenEncrypted String
+  tokenExpiresAt       DateTime?
+  webhookStatus        String    @default("unknown")
+  webhookError         String?
+  connectedAt          DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  user        User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  media       InstagramMedia[]
+  automations Automation[]
+  executions  AutomationExecution[]
+  teamAccess  TeamMemberAccount[]
+
+  @@index([userId])
+}
+
+model InstagramMedia {
+  id                 String    @id @default(cuid())
+  instagramAccountId String
+  instagramMediaId   String
+  mediaType          String
+  caption            String?
+  permalink          String?
+  thumbnailUrl       String?
+  mediaUrl           String?
+  publishedAt        DateTime?
+  timestamp          DateTime?
+  likeCount          Int?
+  commentsCount      Int?
+  commentsEnabled    Boolean?
+  syncedAt           DateTime  @default(now())
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  instagramAccount InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+  automations      Automation[]
+
+  @@unique([instagramAccountId, instagramMediaId])
+  @@index([instagramAccountId, publishedAt])
+}
+
+model Automation {
+  id                  String               @id @default(cuid())
+  userId              String
+  instagramAccountId  String
+  mediaId             String
+  name                String
+  actionType          AutomationActionType @default(private_reply)
+  matchType           MatchType            @default(contains)
+  caseSensitive       Boolean              @default(false)
+  privateReplyMessage String
+  requireFollow       Boolean              @default(true)
+  followPromptMessage String?
+  notFollowingMessage String?
+  commentReplyMessage String?
+  ignoreOwnComments   Boolean              @default(true)
+  actionConfig        Json?
+  enabled             Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+
+  user             User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instagramAccount InstagramAccount     @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+  media            InstagramMedia       @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+  keywords         AutomationKeyword[]
+  executions       AutomationExecution[]
+
+  @@index([userId, instagramAccountId, enabled])
+  @@index([instagramAccountId, mediaId, enabled])
+  @@index([mediaId, enabled])
+}
+
+model AutomationKeyword {
+  id                String   @id @default(cuid())
+  automationId      String
+  keyword           String
+  normalizedKeyword String
+  createdAt         DateTime @default(now())
+
+  automation Automation @relation(fields: [automationId], references: [id], onDelete: Cascade)
+
+  @@unique([automationId, normalizedKeyword])
+  @@index([automationId])
+}
+
+model AutomationExecution {
+  id                    String           @id @default(cuid())
+  automationId          String
+  instagramAccountId    String
+  instagramCommentId    String
+  instagramMediaId      String?
+  commenterInstagramId  String?
+  commenterUsername     String?
+  commentText           String
+  matchedKeyword        String
+  messageText           String
+  status                ExecutionStatus  @default(pending)
+  httpStatus            Int?
+  errorMessage          String?
+  errorCode             String?
+  createdAt             DateTime         @default(now())
+
+  automation       Automation       @relation(fields: [automationId], references: [id], onDelete: Cascade)
+  instagramAccount InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([instagramAccountId, instagramCommentId])
+  @@index([instagramAccountId, commenterInstagramId, status])
+  @@index([instagramAccountId, createdAt])
+  @@index([automationId, createdAt])
+}
+
+model WebhookEvent {
+  id          String   @id @default(cuid())
+  eventId     String   @unique
+  eventType   String
+  payloadHash      String
+  processed        Boolean  @default(false)
+  processingError  String?
+  createdAt        DateTime @default(now())
+
+  @@index([processed, createdAt])
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  userId            String
+  razorpayOrderId   String        @unique
+  razorpayPaymentId String?
+  amount            Int
+  currency          String        @default("INR")
+  receipt           String
+  planLabel         String
+  status            PaymentStatus @default(pending)
+  failureReason     String?
+  emailStatus       String        @default("pending")
+  emailError        String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([razorpayPaymentId])
+}
+
+enum TeamRole {
+  admin
+  member
+}
+
+enum TeamMemberStatus {
+  pending
+  accepted
+  declined
+  cancelled
+}
+
+model TeamMember {
+  id              String           @id @default(cuid())
+  ownerUserId     String
+  memberUserId    String?
+  email           String
+  role            TeamRole
+  status          TeamMemberStatus @default(pending)
+  inviteTokenHash String?          @unique
+  inviteExpiresAt DateTime?
+  createdAt       DateTime         @default(now())
+  acceptedAt      DateTime?
+
+  owner    User                @relation("TeamOwner", fields: [ownerUserId], references: [id], onDelete: Cascade)
+  member   User?               @relation("TeamMemberUser", fields: [memberUserId], references: [id], onDelete: SetNull)
+  accounts TeamMemberAccount[]
+
+  @@index([ownerUserId, status])
+  @@index([memberUserId])
+  @@index([email])
+}
+
+model TeamMemberAccount {
+  id                 String   @id @default(cuid())
+  teamMemberId       String
+  instagramAccountId String
+  createdAt          DateTime @default(now())
+
+  member           TeamMember       @relation(fields: [teamMemberId], references: [id], onDelete: Cascade)
+  instagramAccount InstagramAccount @relation(fields: [instagramAccountId], references: [id], onDelete: Cascade)
+
+  @@unique([teamMemberId, instagramAccountId])
+  @@index([instagramAccountId])
+}

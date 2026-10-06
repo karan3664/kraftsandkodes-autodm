@@ -1,0 +1,56 @@
+# This VPS already terminates TLS with Caddy on :80/:443 (KhatriSetu).
+# Do not start the nginx service from docker-compose.production.yml here.
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: autodm
+      POSTGRES_USER: autodm
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - autodm_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U autodm -d autodm"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - autodm_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_RAZORPAY_KEY_ID: ${NEXT_PUBLIC_RAZORPAY_KEY_ID}
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://autodm:${POSTGRES_PASSWORD}@postgres:5432/autodm?schema=public
+      REDIS_URL: redis://redis:6379
+      APP_URL: https://app.kraftsandkodes.com
+      MARKETING_URL: https://kraftsandkodes.com
+      INSTAGRAM_MOCK_MODE: "false"
+    ports:
+      - "127.0.0.1:3010:3000"
+
+volumes:
+  autodm_pg_data:
+  autodm_redis_data:

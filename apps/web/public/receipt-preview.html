@@ -1,0 +1,658 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KRAFTSANDKODES receipt preview</title>
+    <style>
+      body {
+        margin: 0;
+        background: #111;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+      nav {
+        display: flex;
+        gap: 8px;
+        padding: 16px;
+        justify-content: center;
+        background: #111;
+      }
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 16px;
+        cursor: pointer;
+        font-weight: 600;
+      }
+      .on {
+        background: #7c3aed;
+        color: #fff;
+      }
+      .off {
+        background: #27272a;
+        color: #a1a1aa;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <button id="b-paid" class="on" type="button">Successful</button>
+      <button id="b-failed" class="off" type="button">Failed</button>
+    </nav>
+
+    <div id="paid">
+      <table
+        role="presentation"
+        cellpadding="0"
+        cellspacing="0"
+        width="100%"
+        style="
+          background: #ede8dc;
+          margin: 0;
+          padding: 0;
+          font-family: Georgia, &quot;Times New Roman&quot;, serif;
+        "
+      >
+        <tr>
+          <td align="center" style="padding: 36px 16px">
+            <table
+              role="presentation"
+              cellpadding="0"
+              cellspacing="0"
+              width="560"
+              style="max-width: 560px; background: #ffffff; border-radius: 8px"
+            >
+              <tr>
+                <td align="center" style="padding: 36px 36px 12px">
+                  <img
+                    src="https://kraftsandkodes.com/brand/logo.jpg"
+                    alt="KRAFTSANDKODES"
+                    width="160"
+                    style="
+                      display: block;
+                      width: 160px;
+                      height: auto;
+                      border: 0;
+                    "
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 8px 40px 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 11px;
+                    letter-spacing: 0.14em;
+                    color: #7c3aed;
+                    font-weight: 700;
+                  "
+                >
+                  RECEIPT
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 6px 40px 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 26px;
+                    line-height: 1.25;
+                    color: #1c1917;
+                    font-weight: 700;
+                  "
+                >
+                  Payment successful
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 12px 40px 20px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 15px;
+                    line-height: 1.55;
+                    color: #57534e;
+                  "
+                >
+                  Hi Karan, Your payment was received. Plan access is now
+                  active.
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0 40px 24px">
+                  <table
+                    role="presentation"
+                    cellpadding="0"
+                    cellspacing="0"
+                    width="100%"
+                    style="border: 2px solid #c4a35a; border-radius: 8px"
+                  >
+                    <tr>
+                      <td
+                        align="center"
+                        style="
+                          padding: 18px 16px;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 28px;
+                          letter-spacing: 0.08em;
+                          color: #6b2d2d;
+                          font-weight: 700;
+                        "
+                      >
+                        ₹799.00
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0 40px 28px">
+                  <table
+                    role="presentation"
+                    cellpadding="0"
+                    cellspacing="0"
+                    width="100%"
+                  >
+                    <tr>
+                      <td
+                        style="
+                          padding: 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                          width: 120px;
+                        "
+                      >
+                        Plan
+                      </td>
+                      <td
+                        style="
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        Pro
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Amount
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        ₹799.00 INR
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Order ID
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        order_TkA6HV6EB0Vpdw
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Payment ID
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        pay_XXXXXXXX
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Receipt
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        rcpt_9orgr1gb_1791189127514
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Date
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        5/10/2026, 2:02:07 pm
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding: 8px 40px 12px;
+                    border-top: 1px solid #efeae0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    letter-spacing: 0.12em;
+                    color: #6b2d2d;
+                    font-weight: 700;
+                  "
+                >
+                  KRAFTSANDKODES
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding: 0 40px 8px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 13px;
+                    color: #57534e;
+                  "
+                >
+                  hello@karandigitallabs.com
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding: 0 40px 32px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    color: #a8a29e;
+                  "
+                >
+                  https://kraftsandkodes.com · Karan Digital Labs ·
+                  https://karandigitallabs.com
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="failed" hidden>
+      <table
+        role="presentation"
+        cellpadding="0"
+        cellspacing="0"
+        width="100%"
+        style="
+          background: #ede8dc;
+          margin: 0;
+          padding: 0;
+          font-family: Georgia, &quot;Times New Roman&quot;, serif;
+        "
+      >
+        <tr>
+          <td align="center" style="padding: 36px 16px">
+            <table
+              role="presentation"
+              cellpadding="0"
+              cellspacing="0"
+              width="560"
+              style="max-width: 560px; background: #ffffff; border-radius: 8px"
+            >
+              <tr>
+                <td align="center" style="padding: 36px 36px 12px">
+                  <img
+                    src="https://kraftsandkodes.com/brand/logo.jpg"
+                    alt="KRAFTSANDKODES"
+                    width="160"
+                    style="
+                      display: block;
+                      width: 160px;
+                      height: auto;
+                      border: 0;
+                    "
+                  />
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 8px 40px 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 11px;
+                    letter-spacing: 0.14em;
+                    color: #7c3aed;
+                    font-weight: 700;
+                  "
+                >
+                  RECEIPT
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 6px 40px 0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 26px;
+                    line-height: 1.25;
+                    color: #1c1917;
+                    font-weight: 700;
+                  "
+                >
+                  Payment failed
+                </td>
+              </tr>
+              <tr>
+                <td
+                  style="
+                    padding: 12px 40px 20px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 15px;
+                    line-height: 1.55;
+                    color: #57534e;
+                  "
+                >
+                  Hi Karan, Your payment did not complete. No charge was applied
+                  to your plan.
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0 40px 24px">
+                  <table
+                    role="presentation"
+                    cellpadding="0"
+                    cellspacing="0"
+                    width="100%"
+                    style="border: 2px solid #c4a35a; border-radius: 8px"
+                  >
+                    <tr>
+                      <td
+                        align="center"
+                        style="
+                          padding: 18px 16px;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 28px;
+                          letter-spacing: 0.08em;
+                          color: #6b2d2d;
+                          font-weight: 700;
+                        "
+                      >
+                        ₹799.00
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 0 40px 28px">
+                  <table
+                    role="presentation"
+                    cellpadding="0"
+                    cellspacing="0"
+                    width="100%"
+                  >
+                    <tr>
+                      <td
+                        style="
+                          padding: 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                          width: 120px;
+                        "
+                      >
+                        Plan
+                      </td>
+                      <td
+                        style="
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        Pro
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Amount
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        ₹799.00 INR
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Order ID
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        order_TkA6HV6EB0Vpdw
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Receipt
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        rcpt_9orgr1gb_1791189127514
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Date
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        5/10/2026, 2:02:07 pm
+                      </td>
+                    </tr>
+                    <tr>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #78716c;
+                        "
+                      >
+                        Reason
+                      </td>
+                      <td
+                        style="
+                          padding: 10px 0 0;
+                          font-family: Arial, Helvetica, sans-serif;
+                          font-size: 13px;
+                          color: #1c1917;
+                        "
+                      >
+                        Payment was cancelled.
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding: 8px 40px 12px;
+                    border-top: 1px solid #efeae0;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    letter-spacing: 0.12em;
+                    color: #6b2d2d;
+                    font-weight: 700;
+                  "
+                >
+                  KRAFTSANDKODES
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding: 0 40px 8px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 13px;
+                    color: #57534e;
+                  "
+                >
+                  hello@karandigitallabs.com
+                </td>
+              </tr>
+              <tr>
+                <td
+                  align="center"
+                  style="
+                    padding: 0 40px 32px;
+                    font-family: Arial, Helvetica, sans-serif;
+                    font-size: 12px;
+                    color: #a8a29e;
+                  "
+                >
+                  https://kraftsandkodes.com · Karan Digital Labs ·
+                  https://karandigitallabs.com
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <script>
+      const paid = document.getElementById("paid");
+      const failed = document.getElementById("failed");
+      const bp = document.getElementById("b-paid");
+      const bf = document.getElementById("b-failed");
+      bp.onclick = function () {
+        paid.hidden = false;
+        failed.hidden = true;
+        bp.className = "on";
+        bf.className = "off";
+      };
+      bf.onclick = function () {
+        paid.hidden = true;
+        failed.hidden = false;
+        bp.className = "off";
+        bf.className = "on";
+      };
+    </script>
+  </body>
+</html>

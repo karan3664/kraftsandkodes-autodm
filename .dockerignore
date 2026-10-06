@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+coverage
+*.md
+.env
+.env.*
+apps/web/.next
+apps/web/node_modules
+content
+*.mp4
+*.aiff

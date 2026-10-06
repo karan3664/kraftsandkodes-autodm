@@ -1,0 +1,23 @@
+{
+  "name": "kraftsandkodes-autodm",
+  "version": "0.1.0",
+  "private": true,
+  "description": "KRAFTSANDKODES AutoDM — Instagram comment-to-DM automation by Karan Digital Labs",
+  "packageManager": "pnpm@11.21.0",
+  "scripts": {
+    "dev": "pnpm --filter @kdl/web dev",
+    "build": "pnpm --filter @kdl/db build && pnpm --filter @kdl/web build",
+    "lint": "pnpm --filter @kdl/web lint && pnpm --filter @kdl/shared lint && pnpm --filter @kdl/instagram lint && pnpm --filter @kdl/db lint",
+    "typecheck": "pnpm --filter @kdl/db build && pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
+    "db:generate": "pnpm --filter @kdl/db generate",
+    "db:migrate": "pnpm --filter @kdl/db migrate",
+    "db:migrate:deploy": "pnpm --filter @kdl/db migrate:deploy",
+    "db:seed": "pnpm --filter @kdl/db seed",
+    "ig:import-token": "pnpm --filter @kdl/db import-token",
+    "db:studio": "pnpm --filter @kdl/db studio"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}
